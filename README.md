@@ -1,4 +1,4 @@
-# ThinkVantage Dashboard: A system tool for Thinkpads.
+# ThinkVantage Dashboard: A system tool for ThinkPads.
 
 ThinkVantage Dashboard works best with acpi_call, akmod-tp_smapi, akmod-acpi_call
 and tp_smapi installed.
@@ -8,7 +8,7 @@ and tp_smapi installed.
 If the ThinkVantage button is usele... err, unused, it will automatically use it
 as a hotkey.
 
-tlp-gtk can be extended via plugins which are pythonic classes.
+ThinkVantage Dashboard can be extended via plugins which are pythonic classes.
 
 ```python
 class MyPlugin():
