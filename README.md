@@ -48,3 +48,6 @@ class MyPlugin():
 # Add an instance of the plugin for auto-discovery with priority 99
 PLUGINS.append((99, MyPlugin()))
 ```
+
+If someone doesn't have anything better to do: It will be hours and hours of fun
+to write the fingerprint sensor plugin. [In-depth description of fprint](http://www.reactivated.net/fprint/academic-project/fprint_report.pdf).
