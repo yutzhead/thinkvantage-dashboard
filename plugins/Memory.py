@@ -27,13 +27,10 @@ class Memory():
             self.meminfo.append(RE_RAM.findall(memInfo))
 
     def _parseBytes(self, bytes):
-        vals = [('KB', 1024),('MB', 1024*1024),('GB', 1024*1024*1024)]
-        suffix = bytes.split(' ')[1]
-        value = int(bytes.split(' ')[0])
-        for v in vals:
-            if suffix == v[0]:
-                return value * v[1]
-        return value
+        try:
+            value, suffix = bytes.split(' ')
+            return int(value)*(1024**['B','KB', 'MB','GB','TB','PB','EB','ZB','YB'].index(suffix))
+        except: return bytes
 
     def _sizeof_fmt(self, num, suffix='B'):
         for unit in ['','K','M','G','T','P','E','Z']:
@@ -67,9 +64,11 @@ class Memory():
 
                 if m[0] == 'No Module Installed':
                     l.set_text("\n\nEmpty\n\n")
+                    l.set_name('MemoryLabelEmpty')
                 else:
                     l.set_text("\n%s %s %s\nManufacturer: %s\nModel: %s\n" % (m[0], m[2], m[3], m[4], m[5].strip()))
                     self.installedMem += self._parseBytes(m[0])
+                    l.set_name('MemoryLabel')
 
                 if i % 2 == 0: box.attach(l, 1,6,r,r+1)
             else: box.attach(l, 6,11,r,r+1)
@@ -84,12 +83,19 @@ class Memory():
         style_provider.load_from_data(b"""
             #MemoryLabel {
                 color: white;
-                border-radius: 5px;
                 border-style: solid;
                 border-width: 1px;
+                border-radius: 5px;
                 border-color:white;
                 padding: 0px 4px;
-                opacity: 0.9;
+            }
+            #MemoryLabelEmpty {
+                color: darkgray;
+                border-style: solid;
+                border-width: 1px;
+                border-radius: 5px;
+                border-color:darkgray;
+                padding: 0px 4px;
             }
         """)
 

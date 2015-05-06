@@ -28,7 +28,7 @@ class MyPlugin():
     def getListboxRows(self):
         # Return a list of GtkWidgets for the main area
         rows = []
-        # Displays a title ('Nothing') on the left, a the content of the
+        # Displays a title ('Nothing') on the left, and the content of the
         # file ('/dev/null') on the right
         rows.append(addToListbox('Nothing', '/dev/null'))
 
