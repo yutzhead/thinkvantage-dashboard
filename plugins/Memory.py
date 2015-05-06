@@ -55,25 +55,24 @@ class Memory():
         box.set_col_spacings(18)
 
         for r in range(int(len(meminfo)/2)):
-            mi = meminfo[(r*2):(r*2)+2]
+            try: mi = meminfo[(r*2):(r*2)+2]
+            except: mi = meminfo[(r*2):]
 
-            for i in [0,1]:
+            for i in range(len(mi)):
                 m = mi[i]
-                tv = Gtk.Label()
+                l = Gtk.Label()
 
-                tv.set_justify(Gtk.Justification.CENTER)
-                tv.set_name('MemoryLabel')
+                l.set_justify(Gtk.Justification.CENTER)
+                l.set_name('MemoryLabel')
 
                 if m[0] == 'No Module Installed':
-                    tv.set_text("\n\nEmpty\n\n")
-                    #tv.override_background_color(Gtk.StateType.NORMAL,Gdk.RGBA(83/255, 89/255, 97/255, 1.0))
+                    l.set_text("\n\nEmpty\n\n")
                 else:
-                    tv.set_text("\n%s %s %s\nManufacturer: %s\nModel: %s\n" % (m[0], m[2], m[3], m[4], m[5].strip()))
+                    l.set_text("\n%s %s %s\nManufacturer: %s\nModel: %s\n" % (m[0], m[2], m[3], m[4], m[5].strip()))
                     self.installedMem += self._parseBytes(m[0])
-                    #tv.override_background_color(Gtk.StateType.NORMAL,Gdk.RGBA(121/255, 129/255, 139/255, 1.0))
 
-                if i % 2 == 0: box.attach(tv, 1,6,r,r+1)
-            else: box.attach(tv, 6,11,r,r+1)
+                if i % 2 == 0: box.attach(l, 1,6,r,r+1)
+            else: box.attach(l, 6,11,r,r+1)
         rows.append(box)
         rows.append(Gtk.Label())
 
@@ -82,17 +81,17 @@ class Memory():
         rows.append(box)
 
         style_provider = Gtk.CssProvider()
-        css = b"""#MemoryLabel {
-            color: white;
-            border-radius: 5px;
-            border-style: solid;
-            border-width: 1px;
-            border-color:white;
-            padding: 0px 4px;
-            opacity: 0.9;
-        }"""
-
-        style_provider.load_from_data(css)
+        style_provider.load_from_data(b"""
+            #MemoryLabel {
+                color: white;
+                border-radius: 5px;
+                border-style: solid;
+                border-width: 1px;
+                border-color:white;
+                padding: 0px 4px;
+                opacity: 0.9;
+            }
+        """)
 
         Gtk.StyleContext.add_provider_for_screen(
             Gdk.Screen.get_default(),
