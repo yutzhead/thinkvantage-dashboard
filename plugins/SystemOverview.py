@@ -91,23 +91,20 @@ class SystemOverview():
         return bios_row
 
     def getListboxRows(self):
-        rows = []
         try:
             image = GdkPixbuf.Pixbuf.new_from_file_at_size(
                 os.path.dirname(os.path.abspath(__file__))+'/../images/%s.png' % f_g_c('/sys/devices/virtual/dmi/id/product_version'),
                 250,
                 250
                 )
-            rows.append(Gtk.Image.new_from_pixbuf(image))
+            yield Gtk.Image.new_from_pixbuf(image)
         except:
             pass
 
-        rows.append(addToListbox('Manufacturer', '/sys/devices/virtual/dmi/id/sys_vendor', True))
-        rows.append(addToListbox('Model', '/sys/devices/virtual/dmi/id/product_version'))
-        rows.append(addToListbox('Name', '/sys/devices/virtual/dmi/id/product_name'))
+        yield addToListbox('Manufacturer', '/sys/devices/virtual/dmi/id/sys_vendor', True)
+        yield addToListbox('Model', '/sys/devices/virtual/dmi/id/product_version')
+        yield addToListbox('Name', '/sys/devices/virtual/dmi/id/product_name')
 
-        rows.append(self.BIOSRow())
-        #rows.append(addToListbox('Serial Number', '/sys/devices/virtual/dmi/id/product_serial'))
-        rows.append(addToListbox('Operation System', ['lsb_release','-d','-s'], run=True))
-
-        return rows
+        yield self.BIOSRow()
+        #yield addToListbox('Serial Number', '/sys/devices/virtual/dmi/id/product_serial')
+        yield addToListbox('Operation System', ['lsb_release','-d','-s'], run=True)

@@ -26,26 +26,24 @@ class MyPlugin():
         return True
 
     def getListboxRows(self):
-        # Return a list of GtkWidgets for the main area
-        rows = []
+        # Yields GtkWidgets for the main area
+
         # Displays a title ('Nothing') on the left, and the content of the
         # file ('/dev/null') on the right
-        rows.append(addToListbox('Nothing', '/dev/null'))
+        yield addToListbox('Nothing', '/dev/null')
 
         # Adds a title on the left, and a progressbar with subtitle
         # on the right
-        rows.append(addPercentageToListbox('How full is the glass?',
+        yield addPercentageToListbox('How full is the glass?',
                 50.0,
                 "volume of liquid"
-        ))
+        )
 
         # Custom row with a GtkBox
         box = Gtk.Box()
         box.add(Gtk.Label("Hello"))
         box.add(Gtk.Label("World"))
-        rows.append(box)
-
-        return rows
+        yield box
 
 # Add an instance of the plugin for auto-discovery with priority 99
 PLUGINS.append((99, MyPlugin()))

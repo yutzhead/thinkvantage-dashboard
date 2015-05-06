@@ -41,7 +41,7 @@ class Memory():
 
     def getListboxRows(self):
         # Return a list of GtkWidgets for the main area
-        rows = [Gtk.Label()]
+        yield Gtk.Label()
         self._getMemInfo()
         self.installedMem = 0
 
@@ -72,12 +72,12 @@ class Memory():
 
                 if i % 2 == 0: box.attach(l, 1,6,r,r+1)
             else: box.attach(l, 6,11,r,r+1)
-        rows.append(box)
-        rows.append(Gtk.Label())
+        yield box
+        yield Gtk.Label()
 
         box=Gtk.Table(1,16,True)
         box.attach(Gtk.Label('This ThinkPad supports up to %s of memory, of which %s are installed.' % (self._sizeof_fmt(self.meminfo[0]), self._sizeof_fmt(self.installedMem))), 1,11,0,1)
-        rows.append(box)
+        yield box
 
         style_provider = Gtk.CssProvider()
         style_provider.load_from_data(b"""
@@ -104,7 +104,6 @@ class Memory():
             style_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
-        return rows
 
 # Add an instance of the plugin for auto-discovery with priority 99
 #PLUGINS.append((99, MyPlugin()))
