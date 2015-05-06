@@ -39,7 +39,8 @@ class MainWindow(Gtk.Window):
     def _checkButton(self):
         hasThinkVantageButton = False
         settings = subprocess.check_output(
-        'gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings', shell=True).decode('utf-8')
+            'gsettings get org.gnome.settings-daemon.plugins.media-keys custom-keybindings', shell=True
+        ).decode('utf-8')
         settings = json.loads(settings[settings.index('['):].replace('\'', '"'))
 
         for setting in settings:
@@ -104,10 +105,6 @@ class MainWindow(Gtk.Window):
         self.plugin = PLUGINS[loadPlugin]
         divisionBox.select_row(divisionBox.get_row_at_index(loadPlugin))
 
-        self.thread = threading.Thread(target=self.updateUI)
-        self.thread.daemon = True
-        self.thread.start()
-
         box = Gtk.Box(spacing=12)
         paned.add2(box)
         self.listbox = Gtk.ListBox()
@@ -118,18 +115,18 @@ class MainWindow(Gtk.Window):
 
         self.updateListbox()
 
+        if self.plugin.autoupdate > 0:
+            GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateListbox)
+
         updateButtonThread = threading.Thread(target=self._checkButton)
         updateButtonThread.start()
-
-    def updateUI(self):
-        while True:
-            if int(self.plugin.autoupdate) > 0:
-                GLib.idle_add(self.updateListbox)
-            time.sleep(self.plugin.autoupdate if self.plugin.autoupdate > 0 and self.plugin.autoupdate < 10 else 5)
 
     def rowClicked(self, listbox, row):
         self.plugin = PLUGINS[row.get_index()]
         self.updateListbox()
+
+        if self.plugin.autoupdate > 0:
+            GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateListbox)
 
     def updateListbox(self):
         children = self.listbox.get_children()
@@ -144,11 +141,14 @@ class MainWindow(Gtk.Window):
             row.set_activatable(False)
 
         self.show_all()
+        if self.plugin.autoupdate < 0:
+            return False
+        return True
 
     def bringWindowToFocus(self):
-        def inner():
+        def run():
             self.present_with_time(int(time.time()))
-        GLib.idle_add(inner)
+        GLib.idle_add(run)
 
     class ButtonDBUSService(dbus.service.Object):
         def __init__(self):

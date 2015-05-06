@@ -61,7 +61,10 @@ class Processor():
         for key in sorted(temps.keys()):
             try:
                 tmps = re_temp.search(temps[key]).groups()
-                yield addToListbox('Temperature '+key, "%.0f°C (%.0f°C critical)" % (float(tmps[0]), float(tmps[2])), plain=True)
+                yield addToListbox(
+                    'Temperature '+key, "%.0f°C (%.0f°C critical)" % (float(tmps[0]), float(tmps[2])),
+                    plain=True
+                )
             except:
                 yield addToListbox('Temperature '+key, value, plain=True)
 
