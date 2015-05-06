@@ -50,4 +50,4 @@ PLUGINS.append((99, MyPlugin()))
 ```
 
 If someone doesn't have anything better to do: It will be hours and hours of fun
-to write the fingerprint sensor plugin. [In-depth description of fprint](http://www.reactivated.net/fprint/academic-project/fprint_report.pdf).
+to write the fingerprint sensor plugin. [In-depth description of fprint](http://www.reactivated.net/fprint/academic-project/fprint_report.pdf)
