@@ -15,10 +15,12 @@ from dbus.mainloop.glib import DBusGMainLoop
 from plugins.Batteries import Battery
 from plugins.SystemOverview import SystemOverview
 from plugins.Processor import Processor
+from plugins.Memory import Memory
 
 PLUGINS = [
     SystemOverview(),
     Processor(),
+    Memory(),
     Battery(0),
     Battery(1)
 ]
@@ -30,10 +32,7 @@ bus = dbus.SessionBus()
 if bus.name_has_owner("org.tlp.thinkvantage"):
     proxy = bus.get_object('org.tlp.thinkvantage', '/org/tlp/thinkvantage')
     bringWindowToFocus = proxy.get_dbus_method('bringWindowToFocus', 'org.tlp.thinkvantage')
-    loadPlugin= bringWindowToFocus()
-    #sys.exit(0)
-
-
+    loadPlugin = bringWindowToFocus()
 
 
 class MainWindow(Gtk.Window):
@@ -55,6 +54,17 @@ class MainWindow(Gtk.Window):
             subprocess.check_output('gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ThinkVantage/ name "ThinkVantage"', shell=True)
             subprocess.check_output('gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ThinkVantage/ binding "Launch1"', shell=True)
             subprocess.check_output('gsettings set org.gnome.settings-daemon.plugins.media-keys.custom-keybinding:/org/gnome/settings-daemon/plugins/media-keys/custom-keybindings/ThinkVantage/ command "python3 %s"' % os.path.realpath(__file__), shell=True)
+
+            dialog = Gtk.MessageDialog(
+                None, 0, Gtk.MessageType.INFO,
+                Gtk.ButtonsType.OK,
+                'ThinkVantage button',
+            )
+            dialog.format_secondary_text('ThinkVantage Dashboard has been added to your ThinkVantage button.')
+            def run():
+                dialog.run()
+                dialog.destroy()
+            GLib.idle_add(run)
 
     def _keyPress(self, widget, event):
         if Gdk.keyval_name(event.keyval) == 'Escape':

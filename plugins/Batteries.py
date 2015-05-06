@@ -16,9 +16,9 @@ class Battery():
             return int(f_g_c('/sys/devices/platform/smapi/BAT%s/installed' % self.bat)) == 1
         except:
             return False
-            
+
     def getListboxRows(self):
-        rows = []
+        rows = [Gtk.Label()]
 
         rows.append(addToListbox('Manufacturer', '/sys/devices/platform/smapi/BAT%s/manufacturer' % self.bat, True))
         rows.append(addToListbox('Model', '/sys/devices/platform/smapi/BAT%s/model' % self.bat))

@@ -42,7 +42,7 @@ class Processor():
 
     def getListboxRows(self):
         # Return a list of GtkWidgets for the main area
-        rows = []
+        rows = [Gtk.Label()]
 
         lscpu = self._lscpu()
 
