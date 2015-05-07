@@ -61,7 +61,7 @@ class Memory():
 
                 l.set_justify(Gtk.Justification.CENTER)
                 l.set_name('MemoryLabel')
-                
+
                 if m[0] == 'No Module Installed':
                     l.set_text("\n\nEmpty\n\n")
                     l.set_name('MemoryLabelEmpty')
@@ -82,11 +82,11 @@ class Memory():
         style_provider = Gtk.CssProvider()
         style_provider.load_from_data(b"""
             #MemoryLabel {
-                color: white;
+                color: darkgrey;
                 border-style: solid;
                 border-width: 1px;
                 border-radius: 5px;
-                border-color:white;
+                border-color:darkgrey;
                 padding: 0px 4px;
             }
             #MemoryLabelEmpty {

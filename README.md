@@ -12,6 +12,9 @@ as a hotkey.
 ThinkVantage Dashboard can be extended via plugins which are pythonic classes.
 
 ```python
+from gi.repository import Gtk
+from utils import TextRow, PercentageRow
+
 class MyPlugin():
     def __init__(self):
         # Perform basic initialization
@@ -30,11 +33,11 @@ class MyPlugin():
 
         # Displays a title ('Nothing') on the left, and the content of the
         # file ('/dev/null') on the right
-        yield addToListbox('Nothing', '/dev/null')
+        yield TextRow('Nothing', '/dev/null')
 
         # Adds a title on the left, and a progressbar with subtitle
         # on the right
-        yield addPercentageToListbox('How full is the glass?',
+        yield PercentageRow('How full is the glass?',
                 50.0,
                 "volume of liquid"
         )

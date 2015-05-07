@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from gi.repository import Gtk
-from plugins.utils import addToListbox, addPercentageToListbox, f_g_c
+from plugins.utils import TextRow, PercentageRow, f_g_c
 
 class Battery():
     def __init__(self, battery):
@@ -20,25 +20,25 @@ class Battery():
     def getListboxRows(self):
         yield Gtk.Label()
 
-        yield addToListbox('Manufacturer', '/sys/devices/platform/smapi/BAT%s/manufacturer' % self.bat, True)
-        yield addToListbox('Model', '/sys/devices/platform/smapi/BAT%s/model' % self.bat)
+        yield TextRow('Manufacturer', '/sys/devices/platform/smapi/BAT%s/manufacturer' % self.bat, True)
+        yield TextRow('Model', '/sys/devices/platform/smapi/BAT%s/model' % self.bat)
 
-        yield addToListbox('Cycle Count', '/sys/devices/platform/smapi/BAT%s/cycle_count' % self.bat)
+        yield TextRow('Cycle Count', '/sys/devices/platform/smapi/BAT%s/cycle_count' % self.bat)
 
         temperatureVal = f_g_c('/sys/devices/platform/smapi/BAT%s/temperature' % self.bat)
-        yield addToListbox('Temperature', int(temperatureVal)/1000, frmt='%d°C', plain=True)
+        yield TextRow('Temperature', int(temperatureVal)/1000, frmt='%d°C', plain=True)
 
-        yield addToListbox('Current state', '/sys/devices/platform/smapi/BAT%s/state' % self.bat, True)
+        yield TextRow('Current state', '/sys/devices/platform/smapi/BAT%s/state' % self.bat, True)
         stateVal = f_g_c('/sys/devices/platform/smapi/BAT%s/state' % self.bat)
         if stateVal == 'charging':
-            yield addToListbox('Remainging charging time',
+            yield TextRow('Remainging charging time',
                 '/sys/devices/platform/smapi/BAT%s/remaining_charging_time' % self.bat,
                 frmt='%s minutes'
             )
         elif stateVal == 'idle':
             pass
         else:
-            yield addToListbox('Remainging running time',
+            yield TextRow('Remainging running time',
                 '/sys/devices/platform/smapi/BAT%s/remaining_running_time_now' % self.bat,
                 frmt='%s minutes'
             )
@@ -48,18 +48,18 @@ class Battery():
         remainingCapacityVal = f_g_c('/sys/devices/platform/smapi/BAT%s/remaining_capacity' % self.bat)
         remainingPercentVal = f_g_c('/sys/devices/platform/smapi/BAT%s/remaining_percent' % self.bat)
 
-        yield addPercentageToListbox('Battery Health',
+        yield PercentageRow('Battery Health',
             float(lastFullCapacityVal)/float(designCapacityVal),
             "%s of %s mWh" % (lastFullCapacityVal, designCapacityVal)
         )
 
-        yield addPercentageToListbox('Remaining Charge',
+        yield PercentageRow('Remaining Charge',
             float(remainingPercentVal)/100.0,
             "%s of %s mWh" % (remainingCapacityVal, lastFullCapacityVal)
         )
 
         voltageVal = int(f_g_c('/sys/devices/platform/smapi/BAT%s/voltage' % self.bat))
-        yield addPercentageToListbox('Battery Voltage',
+        yield PercentageRow('Battery Voltage',
             float(voltageVal-10200)/2400.0,
             "%s mV" % voltageVal
         )
@@ -67,7 +67,7 @@ class Battery():
         for i in range(4):
             groupVoltageVal = int(f_g_c('/sys/devices/platform/smapi/BAT%s/group%s_voltage' % (self.bat, str(i))))
             if groupVoltageVal > 0:
-                yield addPercentageToListbox('Voltage Cell Group %s' % str(i),
+                yield PercentageRow('Voltage Cell Group %s' % str(i),
                     float(groupVoltageVal-3400)/800.0,
                     "%s mV" % groupVoltageVal
                 )

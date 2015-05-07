@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from gi.repository import Gtk, GLib, GdkPixbuf
-from plugins.utils import addToListbox, addPercentageToListbox, prepareListboxRow, f_g_c
+from plugins.utils import TextRow, PercentageRow, prepareRow, f_g_c
 import os
 import sys
 from urllib import request
@@ -68,7 +68,7 @@ class SystemOverview():
 
     def BIOSRow(self):
         bios_version = f_g_c('/sys/devices/virtual/dmi/id/bios_version')
-        bios_row, grid = prepareListboxRow('BIOS Version')
+        grid = prepareRow('BIOS Version')
 
         label1 = Gtk.Label(bios_version)
         label1.set_margin_end(4)
@@ -88,7 +88,7 @@ class SystemOverview():
 
         grid.attach(box,7,12,0,1)
 
-        return bios_row
+        return grid
 
     def getListboxRows(self):
         try:
@@ -101,10 +101,10 @@ class SystemOverview():
         except:
             pass
 
-        yield addToListbox('Manufacturer', '/sys/devices/virtual/dmi/id/sys_vendor', True)
-        yield addToListbox('Model', '/sys/devices/virtual/dmi/id/product_version')
-        yield addToListbox('Name', '/sys/devices/virtual/dmi/id/product_name')
+        yield TextRow('Manufacturer', '/sys/devices/virtual/dmi/id/sys_vendor', True)
+        yield TextRow('Model', '/sys/devices/virtual/dmi/id/product_version')
+        yield TextRow('Name', '/sys/devices/virtual/dmi/id/product_name')
 
         yield self.BIOSRow()
-        #yield addToListbox('Serial Number', '/sys/devices/virtual/dmi/id/product_serial')
-        yield addToListbox('Operation System', ['lsb_release','-d','-s'], run=True)
+        #yield TextRow('Serial Number', '/sys/devices/virtual/dmi/id/product_serial')
+        yield TextRow('Operation System', ['lsb_release','-d','-s'], run=True)

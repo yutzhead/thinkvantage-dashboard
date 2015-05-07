@@ -12,6 +12,8 @@ import subprocess
 
 from dbus.mainloop.glib import DBusGMainLoop
 
+from plugins.utils import f_g_c
+
 from plugins.Batteries import Battery
 from plugins.BatteriesACPI import BatteryACPI
 from plugins.SystemOverview import SystemOverview
@@ -76,11 +78,24 @@ class MainWindow(Gtk.Window):
         self.dbusService = self.ButtonDBUSService()
         self.dbusService.window = self
 
-        Gtk.Window.__init__(self, title='ThinkVantage Dashboard')
-        self.set_wmclass ("ThinkVantage", "ThinkVantage")
+        if f_g_c('/sys/devices/virtual/dmi/id/product_version').index('ThinkPad') >= 0:
+            Gtk.Window.__init__(self, title='ThinkVantage Dashboard')
+            self.set_wmclass ("ThinkVantage", "ThinkVantage")
 
-        settings = Gtk.Settings.get_default()
-        settings.set_property('gtk-application-prefer-dark-theme', True)
+            settings = Gtk.Settings.get_default()
+            settings.set_property('gtk-application-prefer-dark-theme', True)
+
+            style_provider = Gtk.CssProvider()
+            style_provider.load_from_data(b'GtkWindow {background-color: #292929;} GtkWindow:backdrop {background-color:#2c2c2c}')
+            Gtk.StyleContext.add_provider_for_screen(
+                Gdk.Screen.get_default(),
+                style_provider,
+                Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
+            )
+        else:
+            Gtk.Window.__init__(self, title='Laptop Dashboard')
+            self.set_wmclass ("Laptop Dashboard", "Laptop Dashboard")
+
         self.set_icon_from_file(os.path.dirname(os.path.abspath(__file__))+'/icons/256x256.png')
 
         paned = Gtk.Paned()
@@ -108,7 +123,7 @@ class MainWindow(Gtk.Window):
 
         box = Gtk.Box(spacing=12)
         paned.add2(box)
-        self.listbox = Gtk.ListBox()
+        self.listbox = Gtk.Grid()
         box.pack_start(self.listbox, True, True, 0)
 
         self.resize(850,450)
@@ -134,12 +149,10 @@ class MainWindow(Gtk.Window):
         for c in children:
             c.destroy()
 
+        i = 0
         for row in self.plugin.getListboxRows():
-            self.listbox.add(row)
-
-        for row in self.listbox.get_children():
-            row.set_selectable(False)
-            row.set_activatable(False)
+            self.listbox.attach(row,0,i,1,1)
+            i = i+1
 
         self.show_all()
         if self.plugin.autoupdate < 0:

@@ -1,12 +1,12 @@
 #!/usr/bin/python3
-from gi.repository import Gtk
+from gi.repository import Gtk, Gdk
 import subprocess
 
 def f_g_c(filename):
     with open(filename) as f:
         return f.read().strip()
 
-def prepareListboxRow(title):
+def prepareRow(title):
     row = Gtk.ListBoxRow()
     row.set_selectable(False)
     row.set_activatable(False)
@@ -22,12 +22,11 @@ def prepareListboxRow(title):
     box.set_margin_end(9)
 
     grid.attach(box,2,7,0,1)
-    row.add(grid)
 
-    return (row, grid)
+    return grid
 
-def addToListbox(title, f, camelCase=False, frmt='%s', run=False, plain=False):
-    row, grid = prepareListboxRow(title)
+def TextRow(title, f, camelCase=False, frmt='%s', run=False, plain=False):
+    grid = prepareRow(title)
 
     if run:
         labelText = subprocess.check_output(f) if not camelCase else subprocess.check_output(f).title()
@@ -44,10 +43,10 @@ def addToListbox(title, f, camelCase=False, frmt='%s', run=False, plain=False):
 
     grid.attach(box,7,12,0,1)
 
-    return row
+    return grid
 
-def addPercentageToListbox(title, percent, subtitle):
-    row, grid = prepareListboxRow(title)
+def PercentageRow(title, percent, subtitle):
+    grid = prepareRow(title)
 
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     vbox.set_margin_start(9)
@@ -64,4 +63,4 @@ def addPercentageToListbox(title, percent, subtitle):
     vbox.pack_start(progressBar, True, True, 0)
     vbox.pack_start(box, True, True, 0)
 
-    return row
+    return grid

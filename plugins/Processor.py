@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 from gi.repository import Gtk
-from plugins.utils import addToListbox, addPercentageToListbox, f_g_c
+from plugins.utils import TextRow, PercentageRow, f_g_c
 
 import subprocess
 import re
@@ -46,34 +46,34 @@ class Processor():
 
         lscpu = self._lscpu()
 
-        yield addToListbox('Model name', lscpu['Model name'].split(' @')[0], plain=True)
-        yield addToListbox('Number of cores', int(lscpu['Core(s) per socket'])*int(lscpu['Socket(s)']), plain=True)
-        yield addToListbox('Threads per core', int(lscpu['Thread(s) per core']), plain=True)
+        yield TextRow('Model name', lscpu['Model name'].split(' @')[0], plain=True)
+        yield TextRow('Number of cores', int(lscpu['Core(s) per socket'])*int(lscpu['Socket(s)']), plain=True)
+        yield TextRow('Threads per core', int(lscpu['Thread(s) per core']), plain=True)
 
         try:
-            yield addToListbox('L3 cache', float(lscpu['L3 cache'][:-1])/1024, frmt='%.fM', plain=True)
+            yield TextRow('L3 cache', float(lscpu['L3 cache'][:-1])/1024, frmt='%.fM', plain=True)
         except:
-            yield addToListbox('L2 cache', float(lscpu['L2 cache'][:-1])/1024, frmt='%.fM', plain=True)
+            yield TextRow('L2 cache', float(lscpu['L2 cache'][:-1])/1024, frmt='%.fM', plain=True)
 
-        yield addToListbox('Architecture', lscpu['Architecture'], plain=True)
+        yield TextRow('Architecture', lscpu['Architecture'], plain=True)
 
         for key,value in self._fanTemps().items():
-            yield addToListbox('Speed '+key, value, plain=True)
+            yield TextRow('Speed '+key, value, plain=True)
 
         re_temp = re.compile('(.*?)°C  \(high = (.*?)°C, crit = (.*?)°C\)')
         temps = self._coreTemps()
         for key in sorted(temps.keys()):
             try:
                 tmps = re_temp.search(temps[key]).groups()
-                yield addToListbox(
+                yield TextRow(
                     'Temperature '+key, "%.0f°C (%.0f°C critical)" % (float(tmps[0]), float(tmps[2])),
                     plain=True
                 )
             except:
-                yield addToListbox('Temperature '+key, value, plain=True)
+                yield TextRow('Temperature '+key, value, plain=True)
 
 
-        yield addPercentageToListbox('CPU frequency',
+        yield PercentageRow('CPU frequency',
                 (float(lscpu['CPU MHz'])-float(lscpu['CPU min MHz']))/(float(lscpu['CPU max MHz'])-float(lscpu['CPU min MHz'])),
                 "%.0f MHz (%.0f MHz max)" % (float(lscpu['CPU MHz']), float(lscpu['CPU max MHz']))
         )
