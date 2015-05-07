@@ -20,10 +20,10 @@ class Memory():
             if self.meminfo: return
         except:
             memInfo = subprocess.check_output('pkexec dmidecode -t memory', shell=True).decode('utf-8')
-            RE_RAM = re.compile(r'Size: (.*?)\n.*?Form Factor: (.*?)\n.*?Type: (.*?)\n.*?Speed: (.*?)\n.*?Manufacturer: (.*?)\n.*?Part Number: (.*?)\n', re.DOTALL)
+            RE_RAM = re.compile(r'\tSize: (.*?)\n.*?Form Factor: (.*?)\n.*?Type: (.*?)\n.*?Speed: (.*?)\n.*?Manufacturer: (.*?)\n.*?Part Number: (.*?)\n', re.DOTALL)
             RE_MAXRAM = re.compile(r'Maximum Capacity: (.*?)\n')
-            self.meminfo = [self._parseBytes(RE_MAXRAM.search(memInfo).group(1))]
 
+            self.meminfo = [self._parseBytes(RE_MAXRAM.search(memInfo).group(1))]
             self.meminfo.append(RE_RAM.findall(memInfo))
 
     def _parseBytes(self, bytes):
@@ -61,7 +61,7 @@ class Memory():
 
                 l.set_justify(Gtk.Justification.CENTER)
                 l.set_name('MemoryLabel')
-
+                
                 if m[0] == 'No Module Installed':
                     l.set_text("\n\nEmpty\n\n")
                     l.set_name('MemoryLabelEmpty')

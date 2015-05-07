@@ -13,6 +13,7 @@ import subprocess
 from dbus.mainloop.glib import DBusGMainLoop
 
 from plugins.Batteries import Battery
+from plugins.BatteriesACPI import BatteryACPI
 from plugins.SystemOverview import SystemOverview
 from plugins.Processor import Processor
 from plugins.Memory import Memory
@@ -22,7 +23,9 @@ PLUGINS = [
     Processor(),
     Memory(),
     Battery(0),
-    Battery(1)
+    BatteryACPI(0),
+    Battery(1),
+    BatteryACPI(1)
 ]
 
 loadPlugin = 0
@@ -92,7 +95,7 @@ class MainWindow(Gtk.Window):
         self.connect('key-press-event', self._keyPress)
         paned.add1(divisionBox)
 
-        for plugin in PLUGINS:
+        for plugin in PLUGINS.copy():
             if not plugin.shouldDisplay():
                 PLUGINS.remove(plugin)
                 continue

@@ -46,11 +46,15 @@ class Processor():
 
         lscpu = self._lscpu()
 
-        yield addToListbox('Model name', lscpu['Model name'].split('CPU @')[0], plain=True)
+        yield addToListbox('Model name', lscpu['Model name'].split(' @')[0], plain=True)
         yield addToListbox('Number of cores', int(lscpu['Core(s) per socket'])*int(lscpu['Socket(s)']), plain=True)
         yield addToListbox('Threads per core', int(lscpu['Thread(s) per core']), plain=True)
 
-        yield addToListbox('L3 cache', float(lscpu['L3 cache'][:-1])/1024, frmt='%.fM', plain=True)
+        try:
+            yield addToListbox('L3 cache', float(lscpu['L3 cache'][:-1])/1024, frmt='%.fM', plain=True)
+        except:
+            yield addToListbox('L2 cache', float(lscpu['L2 cache'][:-1])/1024, frmt='%.fM', plain=True)
+
         yield addToListbox('Architecture', lscpu['Architecture'], plain=True)
 
         for key,value in self._fanTemps().items():
