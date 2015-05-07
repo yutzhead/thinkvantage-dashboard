@@ -22,10 +22,8 @@ PLUGINS = [
     SystemOverview(),
     Processor(),
     Memory(),
-    Battery(0),
-    BatteryACPI(0),
-    Battery(1),
-    BatteryACPI(1)
+    Battery(0) if Battery(0).shouldDisplay() else BatteryACPI(0),
+    Battery(1) if Battery(1).shouldDisplay() else BatteryACPI(1)
 ]
 
 loadPlugin = 0
