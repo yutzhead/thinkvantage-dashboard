@@ -129,7 +129,7 @@ class MainWindow(Gtk.Window):
         self.resize(850,450)
         self.activity_mode = False
 
-        self.updateListbox()
+        self.updateMainArea()
 
         if self.plugin.autoupdate > 0:
             GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateListbox)
@@ -139,18 +139,18 @@ class MainWindow(Gtk.Window):
 
     def rowClicked(self, listbox, row):
         self.plugin = PLUGINS[row.get_index()]
-        self.updateListbox()
+        self.updateMainArea()
 
         if self.plugin.autoupdate > 0:
             GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateListbox)
 
-    def updateListbox(self):
+    def updateMainArea(self):
         children = self.listbox.get_children()
         for c in children:
             c.destroy()
 
         i = 0
-        for row in self.plugin.getListboxRows():
+        for row in self.plugin.getRows():
             self.listbox.attach(row,0,i,1,1)
             i = i+1
 

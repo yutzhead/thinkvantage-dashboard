@@ -16,7 +16,7 @@ class BatteryACPI():
         except:
             return False
 
-    def getListboxRows(self):
+    def getRows(self):
         yield Gtk.Label()
 
         yield TextRow('Manufacturer', '/sys/class/power_supply/BAT%s/manufacturer' % self.bat, True)

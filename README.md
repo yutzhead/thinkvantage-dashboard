@@ -13,7 +13,7 @@ ThinkVantage Dashboard can be extended via plugins which are pythonic classes.
 
 ```python
 from gi.repository import Gtk
-from utils import TextRow, PercentageRow
+from plguins.utils import TextRow, PercentageRow
 
 class MyPlugin():
     def __init__(self):
@@ -28,7 +28,7 @@ class MyPlugin():
         # Perform checks whether this plugin is available on this ThinkPad
         return True
 
-    def getListboxRows(self):
+    def getRows(self):
         # Yields GtkWidgets for the main area
 
         # Displays a title ('Nothing') on the left, and the content of the

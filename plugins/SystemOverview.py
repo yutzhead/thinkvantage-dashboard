@@ -90,7 +90,7 @@ class SystemOverview():
 
         return grid
 
-    def getListboxRows(self):
+    def getRows(self):
         try:
             image = GdkPixbuf.Pixbuf.new_from_file_at_size(
                 os.path.dirname(os.path.abspath(__file__))+'/../images/%s.png' % f_g_c('/sys/devices/virtual/dmi/id/product_version'),

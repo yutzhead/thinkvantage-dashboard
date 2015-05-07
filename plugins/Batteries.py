@@ -17,7 +17,7 @@ class Battery():
         except:
             return False
 
-    def getListboxRows(self):
+    def getRows(self):
         yield Gtk.Label()
 
         yield TextRow('Manufacturer', '/sys/devices/platform/smapi/BAT%s/manufacturer' % self.bat, True)

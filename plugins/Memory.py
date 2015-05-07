@@ -1,6 +1,7 @@
 from gi.repository import Gtk, Gdk
 import subprocess
 import re
+from plugins.utils import f_g_c
 
 class Memory():
     def __init__(self):
@@ -39,7 +40,7 @@ class Memory():
             num /= 1024.0
         return "%.1f%s%s" % (num, 'Y', suffix)
 
-    def getListboxRows(self):
+    def getRows(self):
         # Return a list of GtkWidgets for the main area
         yield Gtk.Label()
         self._getMemInfo()
@@ -79,14 +80,19 @@ class Memory():
         box.attach(Gtk.Label('This ThinkPad supports up to %s of memory, of which %s are installed.' % (self._sizeof_fmt(self.meminfo[0]), self._sizeof_fmt(self.installedMem))), 1,11,0,1)
         yield box
 
+        if f_g_c('/sys/devices/virtual/dmi/id/product_version').index('ThinkPad') >= 0:
+            color = b'white'
+        else:
+            color = b'black'
+
         style_provider = Gtk.CssProvider()
         style_provider.load_from_data(b"""
             #MemoryLabel {
-                color: darkgrey;
+                color: """+color+b""";
                 border-style: solid;
                 border-width: 1px;
                 border-radius: 5px;
-                border-color:darkgrey;
+                border-color:"""+color+b""";
                 padding: 0px 4px;
             }
             #MemoryLabelEmpty {

@@ -40,7 +40,7 @@ class Processor():
     def _coreTemps(self):
         return self._parseShell('sensors', filter='Core')
 
-    def getListboxRows(self):
+    def getRows(self):
         # Return a list of GtkWidgets for the main area
         yield Gtk.Label()
 
