@@ -14,11 +14,13 @@ ThinkVantage Dashboard can be extended via plugins which are pythonic classes.
 ```python
 from gi.repository import Gtk
 from plguins.utils import TextRow, PercentageRow
+import threading
 
 class MyPlugin():
     def __init__(self):
         # Perform basic initialization
         self.autoupdate = -1 # Reloads data via getListboxRows every self.autoupdate seconds
+        #self.lock = threading.Lock() # Optional lock for getRows()
 
     def getHeader(self):
         # Return a title as shown in the sidebar

@@ -1,12 +1,127 @@
-from gi.repository import Gtk, Gdk
+from gi.repository import Gtk, Gdk, Clutter, GtkClutter, GLib
+from threading import Lock
 import subprocess
 import re
+import math
+
 from plugins.utils import f_g_c
+
+class TransparentEmbed(GtkClutter.Embed):
+    def __init__(self):
+        GtkClutter.Embed.__init__(self)
+        self.props.expand = False
+        self.props.hexpand = True
+
+        self._canvas = Clutter.Canvas()
+        self.get_stage().props.content = self._canvas
+
+        def draw(canvas, cairocontext, width, height):
+            Gtk.render_background(
+                self.get_toplevel().get_style_context(),
+                cairocontext,
+                0, 0,
+                width, height
+            )
+            return True
+        self._canvas.connect('draw', draw)
+
+        def realize(widget):
+            self.get_stage().props.content = self._canvas
+        self.connect('realize', realize)
+
+        def size_allocate(widget, size):
+            self._canvas.set_size(size.width, size.height)
+            self._evaluateGeometry(size.width)
+        self.connect('size-allocate', size_allocate)
+
+        def style_updated(widget):
+            self.get_stage().props.content.invalidate()
+        self.connect('style-updated', style_updated)
+
+class FancyMemoryRow():
+    def __init__(self, meminfo):
+        self.embed = TransparentEmbed()
+        self.stage = self.embed.get_stage()
+        self.embed._evaluateGeometry = self._evaluateGeometry
+        self.dimms = []
+        self.empty = []
+        self.actors = []
+
+        self.max_width = 0
+        for r in range(math.ceil(len(meminfo)/2)):
+            try: mi = meminfo[(r*2):(r*2)+2]
+            except: mi = meminfo[(r*2):]
+
+            for i in range(len(mi)):
+                m = mi[i]
+                l = Gtk.Label()
+
+                l.set_justify(Gtk.Justification.CENTER)
+                l.set_name('MemoryLabel')
+
+                if m[0] == 'No Module Installed':
+                    l.set_text("\n\nEmpty\n\n")
+                    l.set_name('MemoryLabelEmpty')
+
+                    actor = GtkClutter.Actor(contents=l)
+                    actor.set_y(15+(130*r))
+                    actor.set_opacity(0)
+                    self.empty.append(actor)
+
+                else:
+                    l.set_text("\n%s %s %s\nManufacturer: %s\nModel: %s\n" % (m[0], m[2], m[3], m[4], m[5].strip()))
+                    l.set_name('MemoryLabel')
+
+                    actor = GtkClutter.Actor(contents=l)
+                    actor.set_y(-50-(125*(int(len(meminfo)/2)-r)))
+                    actor.set_rotation_angle(Clutter.RotateAxis.X_AXIS,-10.0)
+
+                    self.dimms.append([actor, r])
+
+                actor.set_pivot_point(0.0,1.0)
+
+                self.actors.append([actor,r,i])
+                self.stage.add_actor(actor)
+
+        self.embed.props.height_request = (128*math.ceil(len(meminfo)/2))
+
+    def _evaluateGeometry(self, topWidth=0):
+        for a in self.actors:
+            w = a[0].get_width()
+            if self.max_width < w:
+                self.max_width = w+9
+
+        if topWidth > (self.max_width*2)+25:
+            topAdder = (topWidth-(self.max_width*2)+25)/2
+        else:
+            topAdder = 0
+
+        for a in self.actors:
+            a[0].set_width(self.max_width)
+            a[0].set_x(((self.max_width+25)*a[2])+topAdder-25)
+
+    def animate(self):
+        self.lock.acquire()
+        for d in self.dimms:
+            d[0].animatev(Clutter.AnimationMode.EASE,
+                           1000, ['y'], [15+(130*d[1])])
+        def run():
+            for d in self.dimms:
+                d[0].animatev(Clutter.AnimationMode.EASE,
+                           1000, ['rotation-angle-x'], [0.0])
+            def run():
+                for e in self.empty:
+                    e.animatev(Clutter.AnimationMode.EASE,
+                            1000, ['opacity'], [255])
+            GLib.timeout_add(525,run)
+            GLib.timeout_add(1100,self.lock.release)
+        GLib.timeout_add(1100,run)
 
 class Memory():
     def __init__(self):
         # Perform basic initialization
         self.autoupdate = -1 # Reloads data via getListboxRows every self.autoupdate seconds
+        self.lock = Lock()
 
     def getHeader(self):
         # Return a title as shown in the sidebar
@@ -30,7 +145,7 @@ class Memory():
     def _parseBytes(self, bytes):
         try:
             value, suffix = bytes.split(' ')
-            return int(value)*(1024**['B','KB', 'MB','GB','TB','PB','EB','ZB','YB'].index(suffix))
+            return int(value)*(1024**['B','KB','MB','GB','TB','PB','EB','ZB','YB'].index(suffix))
         except: return bytes
 
     def _sizeof_fmt(self, num, suffix='B'):
@@ -41,45 +156,6 @@ class Memory():
         return "%.1f%s%s" % (num, 'Y', suffix)
 
     def getRows(self):
-        # Return a list of GtkWidgets for the main area
-        yield Gtk.Label()
-        self._getMemInfo()
-        self.installedMem = 0
-
-        meminfo = self.meminfo[1]
-
-        box = Gtk.Table(int(len(self.meminfo)/2), 16, True)
-        box.set_row_spacings(18)
-        box.set_col_spacings(18)
-
-        for r in range(int(len(meminfo)/2)):
-            try: mi = meminfo[(r*2):(r*2)+2]
-            except: mi = meminfo[(r*2):]
-
-            for i in range(len(mi)):
-                m = mi[i]
-                l = Gtk.Label()
-
-                l.set_justify(Gtk.Justification.CENTER)
-                l.set_name('MemoryLabel')
-
-                if m[0] == 'No Module Installed':
-                    l.set_text("\n\nEmpty\n\n")
-                    l.set_name('MemoryLabelEmpty')
-                else:
-                    l.set_text("\n%s %s %s\nManufacturer: %s\nModel: %s\n" % (m[0], m[2], m[3], m[4], m[5].strip()))
-                    self.installedMem += self._parseBytes(m[0])
-                    l.set_name('MemoryLabel')
-
-                if i % 2 == 0: box.attach(l, 1,6,r,r+1)
-            else: box.attach(l, 6,11,r,r+1)
-        yield box
-        yield Gtk.Label()
-
-        box=Gtk.Table(1,16,True)
-        box.attach(Gtk.Label('This ThinkPad supports up to %s of memory, of which %s are installed.' % (self._sizeof_fmt(self.meminfo[0]), self._sizeof_fmt(self.installedMem))), 1,11,0,1)
-        yield box
-
         if f_g_c('/sys/devices/virtual/dmi/id/product_version').index('ThinkPad') >= 0:
             color = b'white'
         else:
@@ -110,6 +186,30 @@ class Memory():
             style_provider,
             Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION
         )
+
+        # Return a list of GtkWidgets for the main area
+        yield Gtk.Label()
+        self._getMemInfo()
+        self.installedMem = 0
+        for m in self.meminfo[1]:
+            try:
+                self.installedMem += self._parseBytes(m[0])
+            except: pass
+
+        meminfo = self.meminfo[1]
+
+        e = FancyMemoryRow(meminfo)
+        e.lock = self.lock
+        yield e.embed
+        yield Gtk.Label()
+
+        GLib.idle_add(e.animate)
+
+        l = Gtk.Label('This ThinkPad supports up to %s of memory, %s of which are installed.' % (self._sizeof_fmt(self.meminfo[0]), self._sizeof_fmt(self.installedMem)))
+        l.props.hexpand = True
+
+        yield l
+
 
 # Add an instance of the plugin for auto-discovery with priority 99
 #PLUGINS.append((99, MyPlugin()))

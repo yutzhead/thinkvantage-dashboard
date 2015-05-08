@@ -7,21 +7,13 @@ def f_g_c(filename):
         return f.read().strip()
 
 def prepareRow(title):
-    row = Gtk.ListBoxRow()
-    row.set_selectable(False)
-    row.set_activatable(False)
-
     label1 = Gtk.Label(title)
     label1.set_justify(Gtk.Justification.RIGHT)
+    label1.set_alignment(1,0)
 
-    grid = Gtk.Table(1,16,True)
-
-    box = Gtk.Box()
-    box.pack_start(Gtk.Label(''),True,True,0)
-    box.add(label1)
-    box.set_margin_end(9)
-
-    grid.attach(box,2,7,0,1)
+    grid = Gtk.Box(True, orientation=Gtk.Orientation.HORIZONTAL)
+    grid.pack_start(label1,True, True, 9)
+    grid.props.hexpand = True
 
     return grid
 
@@ -39,9 +31,9 @@ def TextRow(title, f, camelCase=False, frmt='%s', run=False, plain=False):
     label1 = Gtk.Label(labelText)
     box = Gtk.Box()
     box.add(label1)
-    box.set_margin_start(9)
+    #box.set_margin_start(9)
 
-    grid.attach(box,7,12,0,1)
+    grid.pack_start(box,True, True, 9)
 
     return grid
 
@@ -49,13 +41,12 @@ def PercentageRow(title, percent, subtitle):
     grid = prepareRow(title)
 
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
-    vbox.set_margin_start(9)
-
-    grid.attach(vbox,7,12,0,1)
+    grid.pack_start(vbox,True, True, 9)
 
     label1 = Gtk.Label(subtitle)
     progressBar = Gtk.ProgressBar()
     progressBar.set_fraction(percent)
+    progressBar.set_margin_right(45)
 
     box = Gtk.Box()
     box.add(label1)

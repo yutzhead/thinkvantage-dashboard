@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-from gi.repository import Gtk, GLib, GObject, Gdk
+from gi.repository import Gtk, GLib, GObject, Gdk, GtkClutter
 import signal
 import threading
 import time
@@ -98,66 +98,73 @@ class MainWindow(Gtk.Window):
 
         self.set_icon_from_file(os.path.dirname(os.path.abspath(__file__))+'/icons/256x256.png')
 
-        paned = Gtk.Paned()
-        paned.set_position(200)
-        self.add(paned)
+        self.paned = Gtk.Paned()
+        self.paned.set_position(200)
+        self.add(self.paned)
 
         divisionBox = Gtk.ListBox()
         divisionBox.set_activate_on_single_click(True)
         divisionBox.connect('row-activated', self.rowClicked)
         self.connect('key-press-event', self._keyPress)
-        paned.add1(divisionBox)
+        self.paned.add1(divisionBox)
 
         for plugin in PLUGINS.copy():
             if not plugin.shouldDisplay():
                 PLUGINS.remove(plugin)
                 continue
 
-            row = Gtk.ListBoxRow()
-            label = Gtk.Label(plugin.getHeader())
-            row.add(label)
-            divisionBox.add(row)
+            divisionBox.add(Gtk.Label(plugin.getHeader()))
 
         self.plugin = PLUGINS[loadPlugin]
         divisionBox.select_row(divisionBox.get_row_at_index(loadPlugin))
 
-        box = Gtk.Box(spacing=12)
-        paned.add2(box)
         self.listbox = Gtk.Grid()
-        box.pack_start(self.listbox, True, True, 0)
+        #self.listbox.set_hexpand(True)
+        self.paned.set_hexpand(True)
+        #self.listbox.set_vexpand(True)
+        self.paned.add2(self.listbox)
 
         self.resize(850,450)
         self.activity_mode = False
 
-        self.updateMainArea()
+        self.updateMainArea(True)
 
         if self.plugin.autoupdate > 0:
-            GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateListbox)
+            GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateMainArea)
 
         updateButtonThread = threading.Thread(target=self._checkButton)
         updateButtonThread.start()
 
     def rowClicked(self, listbox, row):
-        self.plugin = PLUGINS[row.get_index()]
-        self.updateMainArea()
+        def run():
+            try:
+                self.plugin.lock.acquire()
+                self.plugin.lock.release()
+            except: pass
+            def run():
+                self.plugin = PLUGINS[row.get_index()]
+                self.updateMainArea(True)
+            GLib.idle_add(run)
+        runThread = threading.Thread(target=run)
+        runThread.start()
 
-        if self.plugin.autoupdate > 0:
-            GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateListbox)
+    def updateMainArea(self,change=False):
+        if self.plugin.autoupdate < 0 and not change:
+            return False
 
-    def updateMainArea(self):
-        children = self.listbox.get_children()
-        for c in children:
-            c.destroy()
 
-        i = 0
+        for i in self.listbox.get_children():
+            self.listbox.remove(i)
+        i=0
         for row in self.plugin.getRows():
+            #row.props.expand = True
             self.listbox.attach(row,0,i,1,1)
-            i = i+1
+            i += 1
 
         self.show_all()
-        if self.plugin.autoupdate < 0:
-            return False
-        return True
+
+        if self.plugin.autoupdate > 0 and change:
+            GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateMainArea)
 
     def bringWindowToFocus(self):
         def run():
@@ -174,6 +181,7 @@ class MainWindow(Gtk.Window):
             Gtk.main_quit()
             return PLUGINS.index(self.window.plugin)
 
+GtkClutter.init(None)
 GObject.threads_init()
 m = MainWindow(loadPlugin)
 m.connect("delete-event", Gtk.main_quit)

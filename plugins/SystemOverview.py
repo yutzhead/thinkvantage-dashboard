@@ -67,15 +67,13 @@ class SystemOverview():
 
 
     def BIOSRow(self):
-        bios_version = f_g_c('/sys/devices/virtual/dmi/id/bios_version')
+        bios_version = f_g_c('/sys/devices/virtual/dmi/id/bios_version').strip()
         grid = prepareRow('BIOS Version')
 
         label1 = Gtk.Label(bios_version)
-        label1.set_margin_end(4)
 
         box = Gtk.Box()
         box.add(label1)
-        box.set_margin_start(9)
 
         if not self.BIOSChecked:
             self.bios_spinner = Gtk.Spinner()
@@ -83,10 +81,9 @@ class SystemOverview():
             box.add(self.bios_spinner)
 
             self.thread = threading.Thread(target=self._checkBIOS)
-            self.thread.daemon = True
             self.thread.start()
 
-        grid.attach(box,7,12,0,1)
+        grid.pack_start(box,True, True, 9)
 
         return grid
 
@@ -96,7 +93,7 @@ class SystemOverview():
                 os.path.dirname(os.path.abspath(__file__))+'/../images/%s.png' % f_g_c('/sys/devices/virtual/dmi/id/product_version'),
                 250,
                 250
-                )
+            )
             yield Gtk.Image.new_from_pixbuf(image)
         except:
             pass
