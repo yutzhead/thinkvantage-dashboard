@@ -74,7 +74,7 @@ class FancyMemoryRow():
 
                     actor = GtkClutter.Actor(contents=l)
                     actor.set_y(-50-(125*(int(len(meminfo)/2)-r)))
-                    actor.set_rotation_angle(Clutter.RotateAxis.X_AXIS,-10.0)
+                    actor.set_rotation_angle(Clutter.RotateAxis.X_AXIS,-5.0)
 
                     self.dimms.append([actor, r])
 
