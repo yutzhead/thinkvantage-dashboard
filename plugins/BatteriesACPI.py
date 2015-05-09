@@ -43,9 +43,9 @@ class BatteryACPI():
             lastFullCapacityVal = int(int(f_g_c('/sys/class/power_supply/BAT%s/energy_full' % self.bat))/1000)
             remainingCapacityVal = int(int(f_g_c('/sys/class/power_supply/BAT%s/energy_now' % self.bat))/1000)
         except:
-            designCapacityVal = int(int(f_g_c('/sys/class/power_supply/BAT%s/capacity_full_design' % self.bat))/1000)
-            lastFullCapacityVal = int(int(f_g_c('/sys/class/power_supply/BAT%s/capacity_full' % self.bat))/1000)
-            remainingCapacityVal = int(int(f_g_c('/sys/class/power_supply/BAT%s/capacity_now' % self.bat))/1000)
+            designCapacityVal = int(int(f_g_c('/sys/class/power_supply/BAT%s/charge_full_design' % self.bat))/1000)
+            lastFullCapacityVal = int(int(f_g_c('/sys/class/power_supply/BAT%s/charge_full' % self.bat))/1000)
+            remainingCapacityVal = int(int(f_g_c('/sys/class/power_supply/BAT%s/charge_now' % self.bat))/1000)
 
         remainingPercentVal = float(remainingCapacityVal)/float(lastFullCapacityVal)
 
