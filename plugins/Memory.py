@@ -43,8 +43,6 @@ class FancyMemoryRow():
         self.empty = []
         self.actors = []
 
-        meminfo = meminfo.copy()+[['No Module Installed'],['No Module Installed']]
-
         self.max_width = 0
         for r in range(math.ceil(len(meminfo)/2)):
             try: mi = meminfo[(r*2):(r*2)+2]
