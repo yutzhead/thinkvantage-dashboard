@@ -156,7 +156,7 @@ class Memory():
         return "%.1f%s%s" % (num, 'Y', suffix)
 
     def getRows(self):
-        if f_g_c('/sys/devices/virtual/dmi/id/product_version').index('ThinkPad') >= 0:
+        if f_g_c('/sys/devices/virtual/dmi/id/product_version').find('ThinkPad') >= 0:
             color = b'white'
         else:
             color = b'black'

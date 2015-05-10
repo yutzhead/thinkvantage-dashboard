@@ -78,7 +78,7 @@ class MainWindow(Gtk.Window):
         self.dbusService = self.ButtonDBUSService()
         self.dbusService.window = self
 
-        if f_g_c('/sys/devices/virtual/dmi/id/product_version').index('ThinkPad') >= 0:
+        if f_g_c('/sys/devices/virtual/dmi/id/product_version').find('ThinkPad') >= 0:
             Gtk.Window.__init__(self, title='ThinkVantage Dashboard')
             self.set_wmclass ("ThinkVantage", "ThinkVantage")
 
