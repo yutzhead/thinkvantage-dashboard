@@ -3,7 +3,7 @@
 ThinkVantage Dashboard works best with acpi_call, akmod-tp_smapi, akmod-acpi_call
 and tp_smapi installed.
 
-![Image of ThinkVantage Dashboard](http://i.imgur.com/h6htIpj.gif)
+![Image of ThinkVantage Dashboard](http://i.imgur.com/iOQwvAW.gif)
 
 If the ThinkVantage button is usele... err, unused, it will automatically use it
 as a hotkey.

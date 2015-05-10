@@ -25,10 +25,6 @@ class TransparentEmbed(GtkClutter.Embed):
             return True
         self._canvas.connect('draw', draw)
 
-        def realize(widget):
-            self.get_stage().props.content = self._canvas
-        self.connect('realize', realize)
-
         def size_allocate(widget, size):
             self._canvas.set_size(size.width, size.height)
             self._evaluateGeometry(size.width)
@@ -46,6 +42,8 @@ class FancyMemoryRow():
         self.dimms = []
         self.empty = []
         self.actors = []
+
+        meminfo = meminfo.copy()+[['No Module Installed'],['No Module Installed']]
 
         self.max_width = 0
         for r in range(math.ceil(len(meminfo)/2)):
@@ -113,7 +111,7 @@ class FancyMemoryRow():
                 for e in self.empty:
                     e.animatev(Clutter.AnimationMode.EASE,
                             1000, ['opacity'], [255])
-            GLib.timeout_add(525,run)
+            GLib.timeout_add(725,run)
             GLib.timeout_add(1100,self.lock.release)
         GLib.timeout_add(1100,run)
 
