@@ -152,9 +152,9 @@ class MainWindow(Gtk.Window):
         if self.plugin.autoupdate < 0 and not change:
             return False
 
-
         for i in self.listbox.get_children():
             self.listbox.remove(i)
+
         i=0
         for row in self.plugin.getRows():
             #row.props.expand = True
@@ -163,7 +163,7 @@ class MainWindow(Gtk.Window):
 
         self.show_all()
 
-        if self.plugin.autoupdate > 0 and change:
+        if self.plugin.autoupdate > 0:
             GLib.timeout_add_seconds(self.plugin.autoupdate if self.plugin.autoupdate < 10 else 5, self.updateMainArea)
 
     def bringWindowToFocus(self):
