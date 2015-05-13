@@ -35,14 +35,14 @@ class Battery():
         temperatureVal = f_g_c('/sys/devices/platform/smapi/BAT%s/temperature' % self.bat)
         yield TextRow('Temperature', int(temperatureVal)/1000, frmt='%d°C', plain=True)
 
-        yield TextRow('Current state', batteryInfo['POWER_SUPPLY_STATUS'], plain=True)
+        yield TextRow('Current state', batteryInfo['POWER_SUPPLY_STATUS'].replace("Unknown", "Idle"), plain=True)
         stateVal = batteryInfo['POWER_SUPPLY_STATUS']
         if stateVal == 'Charging':
             yield TextRow('Remainging charging time',
                 '/sys/devices/platform/smapi/BAT%s/remaining_charging_time' % self.bat,
                 frmt='%s minutes'
             )
-        elif stateVal == 'Idle':
+        elif stateVal == 'Unknown':
             pass
         else:
             yield TextRow('Remainging running time',
@@ -67,7 +67,7 @@ class Battery():
 
         voltageVal = int(int(batteryInfo['POWER_SUPPLY_VOLTAGE_NOW'])/1000)
         yield PercentageRow('Battery Voltage',
-            float(voltageVal-(int(batteryInfo['POWER_SUPPLY_VOLTAGE_MIN_DESIGN'])/1000))/1800.0,
+            float(voltageVal-(int(batteryInfo['POWER_SUPPLY_VOLTAGE_MIN_DESIGN'])/1000))/1700.0,
             "%s mV" % voltageVal
         )
 

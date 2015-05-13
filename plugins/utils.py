@@ -4,7 +4,8 @@ import subprocess
 
 def f_g_c(filename):
     with open(filename) as f:
-        return f.read().strip()
+        try: return f.read().strip()
+        except: return ''
 
 def prepareRow(title):
     label1 = Gtk.Label(title)
