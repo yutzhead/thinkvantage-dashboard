@@ -20,22 +20,29 @@ class Battery():
     def getRows(self):
         yield Gtk.Label()
 
-        yield TextRow('Manufacturer', '/sys/devices/platform/smapi/BAT%s/manufacturer' % self.bat, True)
-        yield TextRow('Model', '/sys/devices/platform/smapi/BAT%s/model' % self.bat)
+        batteryInfo = {}
+        data = f_g_c('/sys/class/power_supply/BAT%s/uevent' % self.bat)
+
+        for line in data.split('\n'):
+                l=line.split('=')
+                batteryInfo[l[0]] = l[1]
+
+        yield TextRow('Manufacturer', batteryInfo['POWER_SUPPLY_MANUFACTURER'], True, plain=True)
+        yield TextRow('Model', batteryInfo['POWER_SUPPLY_MODEL_NAME'], plain=True)
 
         yield TextRow('Cycle Count', '/sys/devices/platform/smapi/BAT%s/cycle_count' % self.bat)
 
         temperatureVal = f_g_c('/sys/devices/platform/smapi/BAT%s/temperature' % self.bat)
         yield TextRow('Temperature', int(temperatureVal)/1000, frmt='%d°C', plain=True)
 
-        yield TextRow('Current state', '/sys/devices/platform/smapi/BAT%s/state' % self.bat, True)
-        stateVal = f_g_c('/sys/devices/platform/smapi/BAT%s/state' % self.bat)
-        if stateVal == 'charging':
+        yield TextRow('Current state', batteryInfo['POWER_SUPPLY_STATUS'], plain=True)
+        stateVal = batteryInfo['POWER_SUPPLY_STATUS']
+        if stateVal == 'Charging':
             yield TextRow('Remainging charging time',
                 '/sys/devices/platform/smapi/BAT%s/remaining_charging_time' % self.bat,
                 frmt='%s minutes'
             )
-        elif stateVal == 'idle':
+        elif stateVal == 'Idle':
             pass
         else:
             yield TextRow('Remainging running time',
@@ -43,10 +50,10 @@ class Battery():
                 frmt='%s minutes'
             )
 
-        designCapacityVal = f_g_c('/sys/devices/platform/smapi/BAT%s/design_capacity' % self.bat)
-        lastFullCapacityVal = f_g_c('/sys/devices/platform/smapi/BAT%s/last_full_capacity' % self.bat)
-        remainingCapacityVal = f_g_c('/sys/devices/platform/smapi/BAT%s/remaining_capacity' % self.bat)
-        remainingPercentVal = f_g_c('/sys/devices/platform/smapi/BAT%s/remaining_percent' % self.bat)
+        designCapacityVal = int(int(batteryInfo['POWER_SUPPLY_ENERGY_FULL_DESIGN'])/1000)
+        lastFullCapacityVal = int(int(batteryInfo['POWER_SUPPLY_ENERGY_FULL'])/1000)
+        remainingCapacityVal = int(int(batteryInfo['POWER_SUPPLY_ENERGY_NOW'])/1000)
+        remainingPercentVal = batteryInfo['POWER_SUPPLY_CAPACITY']
 
         yield PercentageRow('Battery Health',
             float(lastFullCapacityVal)/float(designCapacityVal),
@@ -58,9 +65,9 @@ class Battery():
             "%s of %s mWh" % (remainingCapacityVal, lastFullCapacityVal)
         )
 
-        voltageVal = int(f_g_c('/sys/devices/platform/smapi/BAT%s/voltage' % self.bat))
+        voltageVal = int(int(batteryInfo['POWER_SUPPLY_VOLTAGE_NOW'])/1000)
         yield PercentageRow('Battery Voltage',
-            float(voltageVal-10200)/2400.0,
+            float(voltageVal-(int(batteryInfo['POWER_SUPPLY_VOLTAGE_MIN_DESIGN'])/1000))/1800.0,
             "%s mV" % voltageVal
         )
 
