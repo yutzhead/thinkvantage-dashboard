@@ -67,7 +67,7 @@ class Battery():
 
         voltageVal = int(int(batteryInfo['POWER_SUPPLY_VOLTAGE_NOW'])/1000)
         yield PercentageRow('Battery Voltage',
-            float(voltageVal-(int(batteryInfo['POWER_SUPPLY_VOLTAGE_MIN_DESIGN'])/1000))/1700.0,
+            float(voltageVal-(int(batteryInfo['POWER_SUPPLY_VOLTAGE_MIN_DESIGN'])/1000))/1650.0,
             "%s mV" % voltageVal
         )
 
