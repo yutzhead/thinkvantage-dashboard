@@ -38,13 +38,14 @@ def TextRow(title, f, camelCase=False, frmt='%s', run=False, plain=False):
 
     return grid
 
-def PercentageRow(title, percent, subtitle):
+def PercentageRow(title, percent, subtitle, color=''):
     grid = prepareRow(title)
 
     vbox = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
     grid.pack_start(vbox,True, True, 9)
 
-    label1 = Gtk.Label(subtitle)
+    label1 = Gtk.Label()
+    label1.set_markup('<span%s>%s</span>' % (' color="'+color+'"' if color else '', subtitle))
     progressBar = Gtk.ProgressBar()
     progressBar.set_fraction(percent)
     progressBar.set_margin_right(45)

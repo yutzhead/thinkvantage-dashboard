@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from gi.repository import Gtk
 from plugins.utils import TextRow, PercentageRow, f_g_c
+import math
 
 class Battery():
     def __init__(self, battery):
@@ -37,17 +38,32 @@ class Battery():
 
         yield TextRow('Current state', batteryInfo['POWER_SUPPLY_STATUS'].replace("Unknown", "Idle"), plain=True)
         stateVal = batteryInfo['POWER_SUPPLY_STATUS']
+
+
+        def calculateTime(label, file):
+            remainingTimeVal = int(f_g_c(file))
+            if int(remainingTimeVal) < 60:
+                return TextRow('Remaining %s time' % label,
+                    remainingTimeVal,
+                    plain=True,
+                    frmt='%s minutes'
+                )
+            else:
+                return TextRow('Remainging '+label+' time',
+                    (math.floor(remainingTimeVal/60), remainingTimeVal%60),
+                    plain=True,
+                    frmt='%s hours %s minutes'
+                )
+
         if stateVal == 'Charging':
-            yield TextRow('Remainging charging time',
-                '/sys/devices/platform/smapi/BAT%s/remaining_charging_time' % self.bat,
-                frmt='%s minutes'
+            yield calculateTime('charging',
+                '/sys/devices/platform/smapi/BAT%s/remaining_charging_time' % self.bat
             )
         elif stateVal == 'Unknown':
             pass
         else:
-            yield TextRow('Remainging running time',
-                '/sys/devices/platform/smapi/BAT%s/remaining_running_time_now' % self.bat,
-                frmt='%s minutes'
+            yield calculateTime('running',
+                '/sys/devices/platform/smapi/BAT%s/remaining_running_time_now' % self.bat
             )
 
         designCapacityVal = int(int(batteryInfo['POWER_SUPPLY_ENERGY_FULL_DESIGN'])/1000)
@@ -67,14 +83,18 @@ class Battery():
 
         voltageVal = int(int(batteryInfo['POWER_SUPPLY_VOLTAGE_NOW'])/1000)
         yield PercentageRow('Battery Voltage',
-            float(voltageVal-(int(batteryInfo['POWER_SUPPLY_VOLTAGE_MIN_DESIGN'])/1000))/1650.0,
+            float(voltageVal-10200)/2400.0,
             "%s mV" % voltageVal
         )
 
         for i in range(4):
-            groupVoltageVal = int(f_g_c('/sys/devices/platform/smapi/BAT%s/group%s_voltage' % (self.bat, str(i))))
+            try:
+                groupVoltageVal = int(f_g_c('/sys/devices/platform/smapi/BAT%s/group%s_voltage' % (self.bat, str(i))))
+            except:
+                break
             if groupVoltageVal > 0:
                 yield PercentageRow('Voltage Cell Group %s' % str(i),
                     float(groupVoltageVal-3400)/800.0,
-                    "%s mV" % groupVoltageVal
+                    "%s mV" % groupVoltageVal,
+                    color='red' if int(groupVoltageVal) < 3400 else ''
                 )
